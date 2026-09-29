@@ -1,3 +1,4 @@
 # Build output; the exe is published on the Releases page instead
 obj/
 *.exe
+*.msix
