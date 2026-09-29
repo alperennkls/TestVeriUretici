@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+
+namespace TestVeriUretici
+{
+    /// <summary>Console test runner for Generators; build.ps1 runs it and stops the build if anything fails.</summary>
+    internal static class Tests
+    {
+        private static int failures;
+
+        private static int Main()
+        {
+            // Published valid samples and near misses
+            Expect("TC 10000000146 gecerli", Generators.IsValidTc("10000000146"));
+            Expect("TC 12345678950 gecerli", Generators.IsValidTc("12345678950"));
+            Expect("TC 10000000147 gecersiz (11. hane)", !Generators.IsValidTc("10000000147"));
+            Expect("TC 10000000156 gecersiz (10. hane)", !Generators.IsValidTc("10000000156"));
+            Expect("TC 01000000090 gecersiz (0 ile basliyor)", !Generators.IsValidTc("01000000090"));
+            Expect("TC 1000000014 gecersiz (10 hane)", !Generators.IsValidTc("1000000014"));
+            Expect("TC 1000000014a gecersiz (harf)", !Generators.IsValidTc("1000000014a"));
+
+            Expect("VKN 1234567890 gecerli", Generators.IsValidVkn("1234567890"));
+            Expect("VKN 1000036109 gecerli", Generators.IsValidVkn("1000036109"));
+            Expect("VKN 1234567891 gecersiz", !Generators.IsValidVkn("1234567891"));
+            Expect("VKN 1000036108 gecersiz", !Generators.IsValidVkn("1000036108"));
+            Expect("VKN 123456789 gecersiz (9 hane)", !Generators.IsValidVkn("123456789"));
+
+            Expect("IBAN TR330006100519786457841326 gecerli", Generators.IsValidIban("TR330006100519786457841326"));
+            Expect("IBAN TR330006100519786457841327 gecersiz", !Generators.IsValidIban("TR330006100519786457841327"));
+            Expect("IBAN TR340006100519786457841326 gecersiz", !Generators.IsValidIban("TR340006100519786457841326"));
+            Expect("IBAN bosluklu yazim gecersiz", !Generators.IsValidIban("TR33 0006 1005 1978 6457 8413 26"));
+
+            // Every generated value must validate, and changing its last digit must break it
+            for (int i = 0; i < 100000; i++)
+            {
+                RoundTrip("TC", Generators.Tc(), 11, Generators.IsValidTc);
+                RoundTrip("VKN", Generators.Vkn(), 10, Generators.IsValidVkn);
+                RoundTrip("IBAN", Generators.Iban(), 26, Generators.IsValidIban);
+            }
+
+            // Values must actually be random, not one valid constant
+            Expect("TC degerleri farkli", DistinctCount(Generators.Tc) > 990);
+            Expect("VKN degerleri farkli", DistinctCount(Generators.Vkn) > 990);
+            Expect("IBAN degerleri farkli", DistinctCount(Generators.Iban) > 990);
+
+            Console.WriteLine(failures == 0 ? "Tum testler gecti." : failures + " test basarisiz.");
+            return failures == 0 ? 0 : 1;
+        }
+
+        private static void Expect(string name, bool condition)
+        {
+            if (condition) return;
+            failures++;
+            Console.WriteLine("BASARISIZ: " + name);
+        }
+
+        private static void RoundTrip(string kind, string value, int length, Func<string, bool> isValid)
+        {
+            char last = value[value.Length - 1];
+            string broken = value.Substring(0, value.Length - 1) + (char)('0' + (last - '0' + 1) % 10);
+            if (value.Length == length && isValid(value) && !isValid(broken)) return;
+            if (failures < 10) Console.WriteLine("BASARISIZ: " + kind + " " + value);
+            failures++;
+        }
+
+        private static int DistinctCount(Func<string> generate)
+        {
+            HashSet<string> seen = new HashSet<string>();
+            for (int i = 0; i < 1000; i++) seen.Add(generate());
+            return seen.Count;
+        }
+    }
+}
