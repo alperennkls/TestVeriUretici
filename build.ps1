@@ -13,7 +13,7 @@ $winmd = Join-Path $env:WINDIR 'System32\WinMetadata'
 $common = '/nologo', '/codepage:65001', '/optimize+', '/r:System.Windows.Forms.dll', '/r:System.Drawing.dll',
     "/r:$winmd\Windows.ApplicationModel.winmd", "/r:$winmd\Windows.Foundation.winmd", "/r:$fw\System.Runtime.dll"
 $appSources = 'Generators.cs', 'TrayApp.cs', 'TrayPin.cs', 'AutoStart.cs', 'AppPackage.cs', 'Toast.cs', 'AppIcon.cs', 'AssemblyInfo.cs' | ForEach-Object { Join-Path $root $_ }
-$testSources = 'Generators.cs', 'TrayPin.cs', 'AutoStart.cs', 'AppPackage.cs', 'Tests.cs' | ForEach-Object { Join-Path $root $_ }
+$testSources = 'Generators.cs', 'TrayPin.cs', 'AutoStart.cs', 'AppPackage.cs', 'AppIcon.cs', 'Tests.cs' | ForEach-Object { Join-Path $root $_ }
 
 function Invoke-Csc([string[]] $arguments) {
     & $csc @common @arguments
@@ -24,7 +24,7 @@ New-Item -ItemType Directory -Force $obj | Out-Null
 
 # 1. Tests
 Invoke-Csc (@('/target:exe', "/out:$obj\Tests.exe") + $testSources)
-& "$obj\Tests.exe"
+& "$obj\Tests.exe" $root
 if ($LASTEXITCODE -ne 0) { throw 'Testler basarisiz, exe uretilmedi' }
 
 # 2. The app draws its own icon: build once without it and export the .ico

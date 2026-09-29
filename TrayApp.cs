@@ -13,10 +13,15 @@ namespace TestVeriUretici
         [STAThread]
         private static void Main(string[] args)
         {
-            // Build step: build.ps1 embeds this .ico as the .exe icon
+            // Build steps: build.ps1 embeds this .ico as the .exe icon and packs these images into the Store package
             if (args.Length == 2 && args[0] == "--make-icon")
             {
                 AppIcon.SaveIco(args[1]);
+                return;
+            }
+            if (args.Length == 2 && args[0] == "--make-store-assets")
+            {
+                AppIcon.SaveStoreAssets(args[1]);
                 return;
             }
 

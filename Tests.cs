@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using Windows.ApplicationModel;
 
@@ -11,8 +12,10 @@ namespace TestVeriUretici
     {
         private static int failures;
 
-        private static int Main()
+        private static int Main(string[] args)
         {
+            string root = args.Length > 0 ? args[0] : Directory.GetCurrentDirectory();
+
             // Published valid samples and near misses
             Expect("TC 10000000146 gecerli", Generators.IsValidTc("10000000146"));
             Expect("TC 12345678950 gecerli", Generators.IsValidTc("12345678950"));
@@ -53,6 +56,19 @@ namespace TestVeriUretici
             Expect("Ilkeyle kapali gorev kapali sayiliyor", AutoStart.FromTaskState(StartupTaskState.DisabledByPolicy) == AutoStartState.Disabled);
             // Tests.exe never shows a tray icon, so it has no entry and counts as hidden (Store version shows the hint)
             Expect("Tepsi kaydi olmayan exe gizli sayiliyor", !TrayPin.IsPromoted());
+
+            // Every image and the StartupTask id in store\AppxManifest.xml must match what the code produces and uses
+            string manifest = File.ReadAllText(Path.Combine(root, @"store\AppxManifest.xml"));
+            string assets = Path.Combine(Path.GetTempPath(), "TestVeriUretici-store-assets");
+            AppIcon.SaveStoreAssets(assets);
+            foreach (Match image in Regex.Matches(manifest, @"Assets\\(\w+)\.png"))
+                Expect("Manifest gorseli uretiliyor: " + image.Groups[1].Value,
+                    Directory.GetFiles(assets, image.Groups[1].Value + ".*.png").Length > 0);
+            Expect("Gorev cubugu ikonu (unplated) uretiliyor",
+                File.Exists(Path.Combine(assets, "Square44x44Logo.targetsize-24_altform-unplated.png")));
+            Expect("Manifest StartupTask kimligi kodla ayni", manifest.Contains("TaskId=\"" + AutoStart.TaskId + "\""));
+            Expect("Manifest baslangic gorevi kapali geliyor", manifest.Contains("Enabled=\"false\""));
+            Directory.Delete(assets, true);
 
             // Values must actually be random, not one valid constant
             Expect("TC degerleri farkli", DistinctCount(Generators.Tc) > 990);

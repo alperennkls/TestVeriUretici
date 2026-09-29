@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- build.ps1 -Msix fills in $VERSION$ from AssemblyInfo.cs and packs this with the exe, its images and resources.pri -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap5 rescap">
+
+  <!-- Temporary test identity until the values from Partner Center > Product identity are filled in -->
+  <Identity Name="TestVeriUretici.Dev" Publisher="CN=TestVeriUretici-Dev" Version="$VERSION$" ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Test Veri Üretici</DisplayName>
+    <PublisherDisplayName>Alperen</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="tr-TR" />
+  </Resources>
+
+  <Applications>
+    <Application Id="TestVeriUretici" Executable="TestVeriUretici.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Test Veri Üretici"
+        Description="TC Kimlik No, VKN ve IBAN test verisi üretip panoya kopyalar"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png" />
+      <Extensions>
+        <!-- Off until the user turns on "Windows ile başlat" from the menu; AutoStart.cs uses this TaskId -->
+        <uap5:Extension Category="windows.startupTask" Executable="TestVeriUretici.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap5:StartupTask TaskId="TestVeriUretici" Enabled="false" DisplayName="Test Veri Üretici" />
+        </uap5:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Every desktop (Win32) app in a package needs it -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

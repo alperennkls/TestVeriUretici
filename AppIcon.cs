@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -25,6 +26,34 @@ namespace TestVeriUretici
         public static void SaveIco(string path)
         {
             File.WriteAllBytes(path, BuildIco(IcoSizes));
+        }
+
+        /// <summary>Package images named in store\AppxManifest.xml; the name qualifiers are what makepri indexes.</summary>
+        public static void SaveStoreAssets(string folder)
+        {
+            Directory.CreateDirectory(folder);
+            SaveScaled(folder, "Square44x44Logo", 44);
+            SaveScaled(folder, "Square150x150Logo", 150);
+            SaveScaled(folder, "StoreLogo", 50);
+            foreach (int size in new[] { 16, 24, 32, 48, 256 })
+            {
+                SavePng(Path.Combine(folder, "Square44x44Logo.targetsize-" + size + ".png"), size);
+                // Unplated: the taskbar and Start list show it without a colored plate behind it
+                SavePng(Path.Combine(folder, "Square44x44Logo.targetsize-" + size + "_altform-unplated.png"), size);
+            }
+        }
+
+        private static void SaveScaled(string folder, string name, int size)
+        {
+            foreach (int scale in new[] { 100, 125, 150, 200, 400 })
+                SavePng(Path.Combine(folder, name + ".scale-" + scale + ".png"),
+                    (int)Math.Round(size * scale / 100.0, MidpointRounding.AwayFromZero));
+        }
+
+        private static void SavePng(string path, int size)
+        {
+            using (Bitmap bmp = Draw(size))
+                bmp.Save(path, ImageFormat.Png);
         }
 
         /// <summary>Blue rounded tile with a white "ID".</summary>
