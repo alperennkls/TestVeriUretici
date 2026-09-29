@@ -8,7 +8,8 @@ $exe = Join-Path $root 'TestVeriUretici.exe'
 $ico = Join-Path $obj 'TestVeriUretici.ico'
 $csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 $common = '/nologo', '/codepage:65001', '/optimize+', '/r:System.Windows.Forms.dll', '/r:System.Drawing.dll'
-$appSources = 'Generators.cs', 'TrayApp.cs', 'Toast.cs', 'AppIcon.cs', 'AssemblyInfo.cs' | ForEach-Object { Join-Path $root $_ }
+$appSources = 'Generators.cs', 'TrayApp.cs', 'TrayPin.cs', 'Toast.cs', 'AppIcon.cs', 'AssemblyInfo.cs' | ForEach-Object { Join-Path $root $_ }
+$testSources = 'Generators.cs', 'TrayPin.cs', 'Tests.cs' | ForEach-Object { Join-Path $root $_ }
 
 function Invoke-Csc([string[]] $arguments) {
     & $csc @common @arguments
@@ -17,8 +18,8 @@ function Invoke-Csc([string[]] $arguments) {
 
 New-Item -ItemType Directory -Force $obj | Out-Null
 
-# 1. Generator tests
-Invoke-Csc (@('/target:exe', "/out:$obj\Tests.exe", (Join-Path $root 'Generators.cs'), (Join-Path $root 'Tests.cs')))
+# 1. Tests
+Invoke-Csc (@('/target:exe', "/out:$obj\Tests.exe") + $testSources)
 & "$obj\Tests.exe"
 if ($LASTEXITCODE -ne 0) { throw 'Testler basarisiz, exe uretilmedi' }
 

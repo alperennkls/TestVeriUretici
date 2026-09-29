@@ -30,9 +30,9 @@ namespace TestVeriUretici
             using (new Mutex(true, @"Local\TestVeriUretici", out firstInstance))
             {
                 if (firstInstance)
-                    Application.Run(new TrayContext());
+                    Application.Run(new TrayContext(Array.IndexOf(args, AutoStart.Flag) >= 0));
                 else
-                    Application.Run(new Toast("Test Veri Üretici", "Zaten çalışıyor, tepsideki ikona sağ tıkla", false));
+                    Application.Run(new Toast("Test Veri Üretici zaten çalışıyor", "Saatin yanındaki ID ikonuna sağ tıkla", false, 4000));
             }
         }
     }
@@ -43,7 +43,7 @@ namespace TestVeriUretici
         private readonly NotifyIcon tray = new NotifyIcon();
         private readonly MenuItem startupItem;
 
-        public TrayContext()
+        public TrayContext(bool startedAtSignIn)
         {
             startupItem = new MenuItem("Windows ile başlat", ToggleStartup);
             startupItem.Checked = AutoStart.IsEnabled;
@@ -60,6 +60,11 @@ namespace TestVeriUretici
                 new MenuItem("Çıkış", (s, e) => ExitThread())
             });
             tray.Visible = true;
+
+            TrayPin.PinWhenRegistered();
+            // Opened by hand: say where it went. Started with Windows: stay quiet.
+            if (!startedAtSignIn)
+                Toast.Popup("Test Veri Üretici çalışıyor", "Saatin yanındaki ID ikonuna sağ tıkla", true, 4000);
         }
 
         protected override void ExitThreadCore()
@@ -101,6 +106,9 @@ namespace TestVeriUretici
     /// <summary>"Windows ile başlat": a per-user Run entry pointing at this .exe.</summary>
     internal static class AutoStart
     {
+        /// <summary>Added to the Run entry so a start at sign-in shows no notice.</summary>
+        public const string Flag = "--autostart";
+
         private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string ValueName = "TestVeriUretici";
 
@@ -115,7 +123,7 @@ namespace TestVeriUretici
             {
                 using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RunKey))
                 {
-                    if (value) key.SetValue(ValueName, "\"" + Application.ExecutablePath + "\"");
+                    if (value) key.SetValue(ValueName, "\"" + Application.ExecutablePath + "\" " + Flag);
                     else key.DeleteValue(ValueName, false);
                 }
             }

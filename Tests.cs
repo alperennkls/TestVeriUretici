@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace TestVeriUretici
 {
-    /// <summary>Console test runner for Generators; build.ps1 runs it and stops the build if anything fails.</summary>
+    /// <summary>Console test runner for Generators and TrayPin paths; build.ps1 runs it and stops the build if anything fails.</summary>
     internal static class Tests
     {
         private static int failures;
@@ -42,6 +43,17 @@ namespace TestVeriUretici
             Expect("TC degerleri farkli", DistinctCount(Generators.Tc) > 990);
             Expect("VKN degerleri farkli", DistinctCount(Generators.Vkn) > 990);
             Expect("IBAN degerleri farkli", DistinctCount(Generators.Iban) > 990);
+
+            // Tray settings store system folders as "{known folder id}\rest" and other paths as-is
+            Expect("Program Files yolu cozuluyor",
+                TrayPin.ResolveShellPath(@"{6D809377-6AF0-444B-8957-A3773F02200E}\Test\Uygulama.exe")
+                    == Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Test\Uygulama.exe"));
+            Expect("Windows yolu cozuluyor",
+                TrayPin.ResolveShellPath(@"{F38BF404-1D43-42F2-9305-67DE0B28FC23}\explorer.exe")
+                    == Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe"));
+            Expect("Normal yol aynen kaliyor",
+                TrayPin.ResolveShellPath(@"C:\Users\Test\Downloads\TestVeriUretici.exe") == @"C:\Users\Test\Downloads\TestVeriUretici.exe");
+            Expect("Bozuk GUID aynen kaliyor", TrayPin.ResolveShellPath(@"{bozuk}\a.exe") == @"{bozuk}\a.exe");
 
             Console.WriteLine(failures == 0 ? "Tum testler gecti." : failures + " test basarisiz.");
             return failures == 0 ? 0 : 1;

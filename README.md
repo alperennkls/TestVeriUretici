@@ -19,15 +19,15 @@ Saatin yanındaki ikona **sağ tıkla**, **TC üret**, **VKN üret** veya **IBAN
 ## Kurulum
 
 1. [Releases](https://github.com/alperennkls/TestVeriUretici/releases/latest) sayfasından `TestVeriUretici.exe`'yi indir.
-2. İstediğin bir klasöre koy ve çalıştır. Kurulum gerekmez; Windows 10 ve 11'de hazır gelen .NET Framework ile çalışır.
-3. Açılışta kendiliğinden başlasın istersen menüden **Windows ile başlat**'ı işaretle.
+2. İstediğin bir klasöre koy ve çalıştır. İkon saatin yanına yerleşir ve "Test Veri Üretici çalışıyor" bildirimi çıkar. Kurulum gerekmez; Windows 10 ve 11'de hazır gelen .NET Framework ile çalışır.
+3. Bilgisayar her açıldığında kendiliğinden başlasın istersen menüden **Windows ile başlat**'ı işaretle.
 
 > [!NOTE]
 > Exe kod imzalı olmadığı için ilk açılışta **"Windows kişisel bilgisayarınızı korudu"** uyarısı çıkabilir. **Ek bilgi → Yine de çalıştır** ile açabilirsin. İstersen indirmek yerine [kaynaktan kendin derleyebilirsin](#kaynaktan-derleme).
 
-### İkonu saatin yanına sabitleme
+### İkon görünmüyorsa
 
-Windows 11 yeni ikonları **^** okunun altına gizler. İkonu oradan görev çubuğuna sürükle ya da **Ayarlar → Kişiselleştirme → Görev çubuğu → Diğer sistem tepsisi simgeleri** altında **Test Veri Üretici**'yi aç.
+Windows 11'de uygulama ilk açılışta ikonunu kendiliğinden saatin yanına yerleştirir; ikonu sonradan gizlersen bu tercihine dokunmaz. Windows 10'da ya da ikonu gizlediysen **^** okunun altına bak, oradan saatin yanına sürükleyebilirsin.
 
 ## Menü
 
@@ -36,7 +36,7 @@ Windows 11 yeni ikonları **^** okunun altına gizler. İkonu oradan görev çub
 | **TC üret** | 11 haneli TC Kimlik No üretir ve kopyalar |
 | **VKN üret** | 10 haneli Vergi Kimlik No üretir ve kopyalar |
 | **IBAN üret** | 26 karakterlik, boşluksuz TR IBAN üretir ve kopyalar |
-| **Windows ile başlat** | Oturum açılınca uygulamayı kendiliğinden başlatır |
+| **Windows ile başlat** | Bilgisayar her açıldığında uygulamayı sessizce başlatır |
 | **Çıkış** | Uygulamayı kapatır |
 
 Kopyalanan değer sağ altta kısa bir bildirimle gösterilir. Bildirim odağı çalmaz, çalıştığın pencerede kalırsın.
@@ -65,8 +65,9 @@ Script önce algoritma testlerini çalıştırır (her türden 100.000 değer ü
 | Dosya | İçerik |
 |---|---|
 | `Generators.cs` | TC, VKN ve IBAN üretme ve doğrulama |
-| `Tests.cs` | Algoritma testleri |
+| `Tests.cs` | Algoritma ve ikon ayarı testleri |
 | `TrayApp.cs` | Tepsi ikonu, menü, panoya kopyalama, Windows ile başlat |
+| `TrayPin.cs` | İkonun ilk açılışta saatin yanına yerleşmesi |
 | `Toast.cs` | "Kopyalandı" bildirimi |
 | `AppIcon.cs` | Uygulama ikonu (kodla çizilir) |
 | `build.ps1` | Testler ve derleme |

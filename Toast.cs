@@ -22,7 +22,7 @@ namespace TestVeriUretici
 
         // Layout in 96-DPI pixels
         private const int PadX = 16, PadY = 14, BadgeSize = 24, BadgeGap = 12, LineGap = 2, MinWidth = 260, ScreenGap = 12;
-        private const int VisibleMs = 1800;
+        private const int DefaultVisibleMs = 1800;
 
         private static Toast current;
 
@@ -36,7 +36,7 @@ namespace TestVeriUretici
         private readonly Color textColor, captionColor, badgeColor;
         private readonly Timer closeTimer = new Timer();
 
-        internal Toast(string caption, string text, bool success)
+        internal Toast(string caption, string text, bool success, int visibleMs = DefaultVisibleMs)
         {
             this.caption = caption;
             this.text = text;
@@ -67,15 +67,15 @@ namespace TestVeriUretici
             Rectangle area = Screen.PrimaryScreen.WorkingArea;
             Location = new Point(area.Right - width - Px(ScreenGap), area.Bottom - height - Px(ScreenGap));
 
-            closeTimer.Interval = VisibleMs;
+            closeTimer.Interval = visibleMs;
             closeTimer.Tick += delegate { Close(); };
         }
 
         /// <summary>Shows a notice, replacing the previous one if it is still on screen.</summary>
-        public static void Popup(string caption, string text, bool success)
+        public static void Popup(string caption, string text, bool success, int visibleMs = DefaultVisibleMs)
         {
             if (current != null && !current.IsDisposed) current.Close();
-            current = new Toast(caption, text, success);
+            current = new Toast(caption, text, success, visibleMs);
             current.Show();
         }
 
