@@ -7,6 +7,7 @@ Sistem tepsisinden tek tıkla geçerli <b>TC Kimlik No</b>, <b>VKN</b> ve <b>IBA
 </p>
 
 <p align="center">
+<a href="https://apps.microsoft.com/detail/9P3MTW3K1BQD"><b>Microsoft Store'dan yükle</b></a> ·
 <a href="https://github.com/alperennkls/TestVeriUretici/releases/latest"><b>⬇ İndir (TestVeriUretici.exe)</b></a>
 </p>
 
@@ -18,6 +19,10 @@ Saatin yanındaki ikona **sağ tıkla**, **TC üret**, **VKN üret** veya **IBAN
 
 ## Kurulum
 
+**Microsoft Store (önerilen):** [Test Veri Üretici](https://apps.microsoft.com/detail/9P3MTW3K1BQD) sayfasında **Yükle**'ye bas. Store'dan kurulumda Windows uyarısı çıkmaz ve güncellemeler kendiliğinden gelir.
+
+**Ya da exe olarak:**
+
 1. [Releases](https://github.com/alperennkls/TestVeriUretici/releases/latest) sayfasından `TestVeriUretici.exe`'yi indir.
 2. İstediğin bir klasöre koy ve çalıştır. İkon saatin yanına yerleşir ve "Test Veri Üretici çalışıyor" bildirimi çıkar. Kurulum gerekmez; Windows 10 ve 11'de hazır gelen .NET Framework ile çalışır.
 3. Bilgisayar her açıldığında kendiliğinden başlasın istersen menüden **Windows ile başlat**'ı işaretle.
@@ -27,7 +32,7 @@ Saatin yanındaki ikona **sağ tıkla**, **TC üret**, **VKN üret** veya **IBAN
 
 ### İkon görünmüyorsa
 
-Windows 11'de uygulama ilk açılışta ikonunu kendiliğinden saatin yanına yerleştirir; ikonu sonradan gizlersen bu tercihine dokunmaz. Windows 10'da ya da ikonu gizlediysen **^** okunun altına bak, oradan saatin yanına sürükleyebilirsin.
+Windows 11'de exe sürümü ilk açılışta ikonunu kendiliğinden saatin yanına yerleştirir; ikonu sonradan gizlersen bu tercihine dokunmaz. Store sürümünde Windows kuralları buna izin vermez: ikon ilk açılışta **^** okunun altında olur ve açılış bildirimi bunu söyler. Windows 10'da, Store sürümünde ya da ikonu gizlediysen **^** okunun altına bak, oradan saatin yanına sürükleyebilirsin.
 
 ## Menü
 
@@ -36,7 +41,7 @@ Windows 11'de uygulama ilk açılışta ikonunu kendiliğinden saatin yanına ye
 | **TC üret** | 11 haneli TC Kimlik No üretir ve kopyalar |
 | **VKN üret** | 10 haneli Vergi Kimlik No üretir ve kopyalar |
 | **IBAN üret** | 26 karakterlik, boşluksuz TR IBAN üretir ve kopyalar |
-| **Windows ile başlat** | Bilgisayar her açıldığında uygulamayı sessizce başlatır |
+| **Windows ile başlat** | Bilgisayar her açıldığında uygulamayı sessizce başlatır (Store sürümünde Ayarlar → Uygulamalar → Başlangıç'ta da görünür) |
 | **Çıkış** | Uygulamayı kapatır |
 
 Kopyalanan değer sağ altta kısa bir bildirimle gösterilir. Bildirim odağı çalmaz, çalıştığın pencerede kalırsın.
@@ -60,17 +65,21 @@ cd TestVeriUretici
 powershell -ExecutionPolicy Bypass -File build.ps1
 ```
 
-Script önce algoritma testlerini çalıştırır (her türden 100.000 değer üretip doğrular). Testler geçerse `TestVeriUretici.exe` klasörde oluşur.
+Script önce testleri çalıştırır (her türden 100.000 değer üretip doğrular). Testler geçerse `TestVeriUretici.exe` klasörde oluşur. `build.ps1 -Msix` ayrıca Microsoft Store paketini (`TestVeriUretici.msix`) üretir; bunun için Windows SDK gerekir.
 
 | Dosya | İçerik |
 |---|---|
 | `Generators.cs` | TC, VKN ve IBAN üretme ve doğrulama |
-| `Tests.cs` | Algoritma ve ikon ayarı testleri |
-| `TrayApp.cs` | Tepsi ikonu, menü, panoya kopyalama, Windows ile başlat |
-| `TrayPin.cs` | İkonun ilk açılışta saatin yanına yerleşmesi |
+| `Tests.cs` | Algoritma, ikon ayarı ve Store paketi tutarlılık testleri |
+| `TrayApp.cs` | Tepsi ikonu, menü, panoya kopyalama |
+| `AutoStart.cs` | Windows ile başlat: exe'de Run kaydı, Store sürümünde StartupTask |
+| `AppPackage.cs` | Uygulamanın Store paketinden mi çalıştığını algılama |
+| `TrayPin.cs` | İkonun ilk açılışta saatin yanına yerleşmesi (exe sürümü) |
 | `Toast.cs` | "Kopyalandı" bildirimi |
-| `AppIcon.cs` | Uygulama ikonu (kodla çizilir) |
-| `build.ps1` | Testler ve derleme |
+| `AppIcon.cs` | Uygulama ikonu ve Store görselleri (kodla çizilir) |
+| `store/` | Store paketi manifesti, Store sayfası metinleri ve görselleri |
+| `PRIVACY.md` | Gizlilik politikası |
+| `build.ps1` | Testler, derleme ve Store paketi |
 
 ## Lisans
 
