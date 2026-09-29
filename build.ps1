@@ -8,8 +8,8 @@ $exe = Join-Path $root 'TestVeriUretici.exe'
 $ico = Join-Path $obj 'TestVeriUretici.ico'
 $csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 $common = '/nologo', '/codepage:65001', '/optimize+', '/r:System.Windows.Forms.dll', '/r:System.Drawing.dll'
-$appSources = 'Generators.cs', 'TrayApp.cs', 'TrayPin.cs', 'Toast.cs', 'AppIcon.cs', 'AssemblyInfo.cs' | ForEach-Object { Join-Path $root $_ }
-$testSources = 'Generators.cs', 'TrayPin.cs', 'Tests.cs' | ForEach-Object { Join-Path $root $_ }
+$appSources = 'Generators.cs', 'TrayApp.cs', 'TrayPin.cs', 'AppPackage.cs', 'Toast.cs', 'AppIcon.cs', 'AssemblyInfo.cs' | ForEach-Object { Join-Path $root $_ }
+$testSources = 'Generators.cs', 'TrayPin.cs', 'AppPackage.cs', 'Tests.cs' | ForEach-Object { Join-Path $root $_ }
 
 function Invoke-Csc([string[]] $arguments) {
     & $csc @common @arguments

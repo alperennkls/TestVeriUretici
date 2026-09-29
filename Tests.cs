@@ -39,6 +39,9 @@ namespace TestVeriUretici
                 RoundTrip("IBAN", Generators.Iban(), 26, Generators.IsValidIban);
             }
 
+            // Tests.exe always runs as a plain exe, never from the Store package
+            Expect("Paketsiz calisma algilaniyor", !AppPackage.IsPackaged);
+
             // Values must actually be random, not one valid constant
             Expect("TC degerleri farkli", DistinctCount(Generators.Tc) > 990);
             Expect("VKN degerleri farkli", DistinctCount(Generators.Vkn) > 990);
