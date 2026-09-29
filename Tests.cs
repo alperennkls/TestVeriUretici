@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Win32;
+using Windows.ApplicationModel;
 
 namespace TestVeriUretici
 {
@@ -41,6 +43,14 @@ namespace TestVeriUretici
 
             // Tests.exe always runs as a plain exe, never from the Store package
             Expect("Paketsiz calisma algilaniyor", !AppPackage.IsPackaged);
+            Expect("--autostart oturum acilisi sayiliyor", AutoStart.WasStartedAtSignIn(new[] { AutoStart.Flag }));
+            Expect("Argumansiz acilis elle acilis sayiliyor", !AutoStart.WasStartedAtSignIn(new string[0]));
+            Expect("Windows ile baslat durumu Run kaydini yansitiyor",
+                (AutoStart.GetStateAsync().Result == AutoStartState.Enabled) == RunEntryExists());
+            // A task switched off in Settings must stay distinguishable from a plain "off" the menu may flip back on
+            Expect("Ayarlar'dan kapatilan gorev ayri durum", AutoStart.FromTaskState(StartupTaskState.DisabledByUser) == AutoStartState.DisabledByUser);
+            Expect("Ilkeyle acik gorev acik sayiliyor", AutoStart.FromTaskState(StartupTaskState.EnabledByPolicy) == AutoStartState.Enabled);
+            Expect("Ilkeyle kapali gorev kapali sayiliyor", AutoStart.FromTaskState(StartupTaskState.DisabledByPolicy) == AutoStartState.Disabled);
 
             // Values must actually be random, not one valid constant
             Expect("TC degerleri farkli", DistinctCount(Generators.Tc) > 990);
@@ -76,6 +86,12 @@ namespace TestVeriUretici
             if (value.Length == length && isValid(value) && !isValid(broken)) return;
             if (failures < 10) Console.WriteLine("BASARISIZ: " + kind + " " + value);
             failures++;
+        }
+
+        private static bool RunEntryExists()
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run"))
+                return key != null && key.GetValue("TestVeriUretici") != null;
         }
 
         private static int DistinctCount(Func<string> generate)

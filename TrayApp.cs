@@ -2,7 +2,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace TestVeriUretici
 {
@@ -30,7 +29,7 @@ namespace TestVeriUretici
             using (new Mutex(true, @"Local\TestVeriUretici", out firstInstance))
             {
                 if (firstInstance)
-                    Application.Run(new TrayContext(Array.IndexOf(args, AutoStart.Flag) >= 0));
+                    Application.Run(new TrayContext(AutoStart.WasStartedAtSignIn(args)));
                 else
                     Application.Run(new Toast("Test Veri Üretici zaten çalışıyor", "Saatin yanındaki ID ikonuna sağ tıkla", false, 4000));
             }
@@ -46,7 +45,6 @@ namespace TestVeriUretici
         public TrayContext(bool startedAtSignIn)
         {
             startupItem = new MenuItem("Windows ile başlat", ToggleStartup);
-            startupItem.Checked = AutoStart.IsEnabled;
 
             tray.Icon = AppIcon.ForTray(SystemInformation.SmallIconSize.Width);
             tray.Text = "Test Veri Üretici";
@@ -60,6 +58,7 @@ namespace TestVeriUretici
                 new MenuItem("Çıkış", (s, e) => ExitThread())
             });
             tray.Visible = true;
+            ShowStartupState();
 
             TrayPin.PinWhenRegistered();
             // Opened by hand: say where it went. Started with Windows: stay quiet.
@@ -89,43 +88,41 @@ namespace TestVeriUretici
             }
         }
 
-        private void ToggleStartup(object sender, EventArgs e)
+        // Reading the Store package's startup task is asynchronous; the check mark appears once it is known
+        private async void ShowStartupState()
         {
             try
             {
-                AutoStart.IsEnabled = !startupItem.Checked;
-                startupItem.Checked = AutoStart.IsEnabled;
+                startupItem.Checked = await AutoStart.GetStateAsync() == AutoStartState.Enabled;
+            }
+            catch (Exception)
+            {
+                startupItem.Checked = false;
+            }
+        }
+
+        private async void ToggleStartup(object sender, EventArgs e)
+        {
+            bool enable = !startupItem.Checked;
+            try
+            {
+                AutoStartState state = await AutoStart.SetEnabledAsync(enable);
+                startupItem.Checked = state == AutoStartState.Enabled;
+                if (!enable || state == AutoStartState.Enabled) return;
+                if (state == AutoStartState.DisabledByUser)
+                {
+                    // Switched off in Settings or Task Manager: Windows lets only the user switch it back on there
+                    Toast.Popup("Windows ile başlat Ayarlar'da kapalı", "Açılan sayfada Test Veri Üretici'yi aç", false, 5000);
+                    AutoStart.OpenStartupSettings();
+                }
+                else
+                {
+                    Toast.Popup("Windows ile başlat açılamadı", "Bir ilke engelliyor olabilir", false, 4000);
+                }
             }
             catch (Exception ex)
             {
                 Toast.Popup("Ayar kaydedilemedi", ex.Message, false);
-            }
-        }
-    }
-
-    /// <summary>"Windows ile başlat": a per-user Run entry pointing at this .exe.</summary>
-    internal static class AutoStart
-    {
-        /// <summary>Added to the Run entry so a start at sign-in shows no notice.</summary>
-        public const string Flag = "--autostart";
-
-        private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-        private const string ValueName = "TestVeriUretici";
-
-        public static bool IsEnabled
-        {
-            get
-            {
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RunKey))
-                    return key != null && key.GetValue(ValueName) != null;
-            }
-            set
-            {
-                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RunKey))
-                {
-                    if (value) key.SetValue(ValueName, "\"" + Application.ExecutablePath + "\" " + Flag);
-                    else key.DeleteValue(ValueName, false);
-                }
             }
         }
     }

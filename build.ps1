@@ -6,10 +6,14 @@ $root = $PSScriptRoot
 $obj = Join-Path $root 'obj'
 $exe = Join-Path $root 'TestVeriUretici.exe'
 $ico = Join-Path $obj 'TestVeriUretici.ico'
-$csc = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
-$common = '/nologo', '/codepage:65001', '/optimize+', '/r:System.Windows.Forms.dll', '/r:System.Drawing.dll'
-$appSources = 'Generators.cs', 'TrayApp.cs', 'TrayPin.cs', 'AppPackage.cs', 'Toast.cs', 'AppIcon.cs', 'AssemblyInfo.cs' | ForEach-Object { Join-Path $root $_ }
-$testSources = 'Generators.cs', 'TrayPin.cs', 'AppPackage.cs', 'Tests.cs' | ForEach-Object { Join-Path $root $_ }
+$fw = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319'
+$csc = Join-Path $fw 'csc.exe'
+# WinRT (StartupTask for the Store package) through the metadata every Windows 10/11 has, so no SDK is needed
+$winmd = Join-Path $env:WINDIR 'System32\WinMetadata'
+$common = '/nologo', '/codepage:65001', '/optimize+', '/r:System.Windows.Forms.dll', '/r:System.Drawing.dll',
+    "/r:$winmd\Windows.ApplicationModel.winmd", "/r:$winmd\Windows.Foundation.winmd", "/r:$fw\System.Runtime.dll"
+$appSources = 'Generators.cs', 'TrayApp.cs', 'TrayPin.cs', 'AutoStart.cs', 'AppPackage.cs', 'Toast.cs', 'AppIcon.cs', 'AssemblyInfo.cs' | ForEach-Object { Join-Path $root $_ }
+$testSources = 'Generators.cs', 'TrayPin.cs', 'AutoStart.cs', 'AppPackage.cs', 'Tests.cs' | ForEach-Object { Join-Path $root $_ }
 
 function Invoke-Csc([string[]] $arguments) {
     & $csc @common @arguments
