@@ -60,10 +60,18 @@ namespace TestVeriUretici
             tray.Visible = true;
             ShowStartupState();
 
-            TrayPin.PinWhenRegistered();
+            // The Store package cannot move its icon (its registry writes stay private), so only the exe pins itself
+            if (!AppPackage.IsPackaged) TrayPin.PinWhenRegistered();
             // Opened by hand: say where it went. Started with Windows: stay quiet.
             if (!startedAtSignIn)
-                Toast.Popup("Test Veri Üretici çalışıyor", "Saatin yanındaki ID ikonuna sağ tıkla", true, 4000);
+                Toast.Popup("Test Veri Üretici çalışıyor", WhereIsTheIcon(), true, 4000);
+        }
+
+        private static string WhereIsTheIcon()
+        {
+            return AppPackage.IsPackaged && !TrayPin.IsPromoted()
+                ? "İkon ^ altında, saatin yanına sürükle"
+                : "Saatin yanındaki ID ikonuna sağ tıkla";
         }
 
         protected override void ExitThreadCore()

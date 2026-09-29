@@ -31,6 +31,26 @@ namespace TestVeriUretici
             timer.Start();
         }
 
+        /// <summary>
+        /// Whether Windows shows our icon next to the clock right now. It only reads, so it also works inside the
+        /// Store package, where registry reads see the real values and only writes are redirected.
+        /// </summary>
+        public static bool IsPromoted()
+        {
+            try
+            {
+                using (RegistryKey root = Registry.CurrentUser.OpenSubKey(SettingsKey))
+                using (RegistryKey icon = OpenOurEntry(root, false))
+                {
+                    object promoted = icon == null ? null : icon.GetValue("IsPromoted");
+                    return promoted is int && (int)promoted == 1;
+                }
+            }
+            catch (SecurityException) { return false; }
+            catch (UnauthorizedAccessException) { return false; }
+            catch (IOException) { return false; }
+        }
+
         /// <summary>Explorer stores paths under system folders as "{known folder id}\rest" and all others as-is.</summary>
         internal static string ResolveShellPath(string stored)
         {
@@ -59,24 +79,33 @@ namespace TestVeriUretici
                 using (RegistryKey root = Registry.CurrentUser.OpenSubKey(SettingsKey))
                 {
                     if (root == null) return true;
-                    foreach (string name in root.GetSubKeyNames())
+                    using (RegistryKey icon = OpenOurEntry(root, true))
                     {
-                        using (RegistryKey icon = root.OpenSubKey(name))
-                        {
-                            if (icon == null || !IsThisExe(icon.GetValue("ExecutablePath") as string)) continue;
-                            if (icon.GetValue("IsPromoted") != null) return true;
-                        }
-                        using (RegistryKey icon = root.OpenSubKey(name, true))
-                            if (icon != null) icon.SetValue("IsPromoted", 1, RegistryValueKind.DWord);
+                        if (icon == null) return false;
+                        if (icon.GetValue("IsPromoted") == null) icon.SetValue("IsPromoted", 1, RegistryValueKind.DWord);
                         return true;
                     }
                 }
-                return false;
             }
             // Pinning is a convenience; never let it take the app down
             catch (SecurityException) { return true; }
             catch (UnauthorizedAccessException) { return true; }
             catch (IOException) { return true; }
+        }
+
+        // Our exe's entry among the per-icon settings, or null while Explorer has not registered the icon
+        private static RegistryKey OpenOurEntry(RegistryKey root, bool writable)
+        {
+            if (root == null) return null;
+            foreach (string name in root.GetSubKeyNames())
+            {
+                using (RegistryKey icon = root.OpenSubKey(name))
+                {
+                    if (icon == null || !IsThisExe(icon.GetValue("ExecutablePath") as string)) continue;
+                }
+                return root.OpenSubKey(name, writable);
+            }
+            return null;
         }
 
         private static bool IsThisExe(string storedPath)

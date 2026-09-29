@@ -51,6 +51,8 @@ namespace TestVeriUretici
             Expect("Ayarlar'dan kapatilan gorev ayri durum", AutoStart.FromTaskState(StartupTaskState.DisabledByUser) == AutoStartState.DisabledByUser);
             Expect("Ilkeyle acik gorev acik sayiliyor", AutoStart.FromTaskState(StartupTaskState.EnabledByPolicy) == AutoStartState.Enabled);
             Expect("Ilkeyle kapali gorev kapali sayiliyor", AutoStart.FromTaskState(StartupTaskState.DisabledByPolicy) == AutoStartState.Disabled);
+            // Tests.exe never shows a tray icon, so it has no entry and counts as hidden (Store version shows the hint)
+            Expect("Tepsi kaydi olmayan exe gizli sayiliyor", !TrayPin.IsPromoted());
 
             // Values must actually be random, not one valid constant
             Expect("TC degerleri farkli", DistinctCount(Generators.Tc) > 990);
