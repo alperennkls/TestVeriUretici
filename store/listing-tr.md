@@ -28,7 +28,7 @@ Tek tıkla geçerli TC Kimlik No, VKN ve IBAN test verisi üretip panoya kopyala
 - Veri toplamaz, internete bağlanmaz
 
 ## Arama terimleri (en fazla 7)
-TC kimlik, VKN, IBAN, test verisi, vergi kimlik numarası, test data, SAP
+TC kimlik, VKN, IBAN, test verisi, vergi kimlik numarası, test data
 
 ## Bu sürümdeki yenilikler
 İlk Microsoft Store sürümü.
