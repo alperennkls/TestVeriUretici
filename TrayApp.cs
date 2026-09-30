@@ -33,9 +33,11 @@ namespace TestVeriUretici
             bool firstInstance;
             using (new Mutex(true, @"Local\TestVeriUretici", out firstInstance))
             {
+                bool startedAtSignIn = AutoStart.WasStartedAtSignIn(args);
                 if (firstInstance)
-                    Application.Run(new TrayContext(AutoStart.WasStartedAtSignIn(args)));
-                else
+                    Application.Run(new TrayContext(startedAtSignIn));
+                // Both the exe and the Store version set to start with Windows: the second one bows out quietly
+                else if (!startedAtSignIn)
                     Application.Run(new Toast("Test Veri Üretici zaten çalışıyor", TrayPin.WhereIsTheIcon(), false, 4000));
             }
         }

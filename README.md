@@ -19,7 +19,7 @@ Saatin yanındaki ikona **sağ tıkla**, **TC üret**, **VKN üret** veya **IBAN
 
 ## Kurulum
 
-**Microsoft Store (önerilen):** [Test Veri Üretici](https://apps.microsoft.com/detail/9P3MTW3K1BQD) sayfasında **Yükle**'ye bas. Store'dan kurulumda Windows uyarısı çıkmaz ve güncellemeler kendiliğinden gelir.
+**Microsoft Store (önerilen):** [Test Veri Üretici](https://apps.microsoft.com/detail/9P3MTW3K1BQD) sayfasında **Yükle**'ye bas. Store'dan kurulumda Windows uyarısı çıkmaz ve güncellemeler kendiliğinden gelir. Daha önce exe sürümünü kullandıysan, onun menüsünden **Windows ile başlat**'ı kapatıp exe'yi silmen yeterli.
 
 **Ya da exe olarak:**
 
