@@ -51,6 +51,17 @@ namespace TestVeriUretici
             catch (IOException) { return false; }
         }
 
+        /// <summary>Where the notices tell the user to look. The Store package cannot move its icon, so it may be under ^.</summary>
+        public static string WhereIsTheIcon()
+        {
+            return WhereIsTheIcon(AppPackage.IsPackaged && !IsPromoted());
+        }
+
+        internal static string WhereIsTheIcon(bool hidden)
+        {
+            return hidden ? "İkon ^ altında, saatin yanına sürükle" : "Saatin yanındaki ID ikonuna sağ tıkla";
+        }
+
         /// <summary>Explorer stores paths under system folders as "{known folder id}\rest" and all others as-is.</summary>
         internal static string ResolveShellPath(string stored)
         {

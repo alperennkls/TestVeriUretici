@@ -36,7 +36,7 @@ namespace TestVeriUretici
                 if (firstInstance)
                     Application.Run(new TrayContext(AutoStart.WasStartedAtSignIn(args)));
                 else
-                    Application.Run(new Toast("Test Veri Üretici zaten çalışıyor", "Saatin yanındaki ID ikonuna sağ tıkla", false, 4000));
+                    Application.Run(new Toast("Test Veri Üretici zaten çalışıyor", TrayPin.WhereIsTheIcon(), false, 4000));
             }
         }
     }
@@ -69,14 +69,7 @@ namespace TestVeriUretici
             if (!AppPackage.IsPackaged) TrayPin.PinWhenRegistered();
             // Opened by hand: say where it went. Started with Windows: stay quiet.
             if (!startedAtSignIn)
-                Toast.Popup("Test Veri Üretici çalışıyor", WhereIsTheIcon(), true, 4000);
-        }
-
-        private static string WhereIsTheIcon()
-        {
-            return AppPackage.IsPackaged && !TrayPin.IsPromoted()
-                ? "İkon ^ altında, saatin yanına sürükle"
-                : "Saatin yanındaki ID ikonuna sağ tıkla";
+                Toast.Popup("Test Veri Üretici çalışıyor", TrayPin.WhereIsTheIcon(), true, 4000);
         }
 
         protected override void ExitThreadCore()

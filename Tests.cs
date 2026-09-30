@@ -56,6 +56,10 @@ namespace TestVeriUretici
             Expect("Ilkeyle kapali gorev kapali sayiliyor", AutoStart.FromTaskState(StartupTaskState.DisabledByPolicy) == AutoStartState.Disabled);
             // Tests.exe never shows a tray icon, so it has no entry and counts as hidden (Store version shows the hint)
             Expect("Tepsi kaydi olmayan exe gizli sayiliyor", !TrayPin.IsPromoted());
+            // Both notices (opening, already running) say where to look; a hidden Store icon gets the ^ hint
+            Expect("Gizli ikon icin ^ ipucu", TrayPin.WhereIsTheIcon(true) == "İkon ^ altında, saatin yanına sürükle");
+            Expect("Gorunen ikon icin saat metni", TrayPin.WhereIsTheIcon(false) == "Saatin yanındaki ID ikonuna sağ tıkla");
+            Expect("Paketsiz exe saati gosteriyor", TrayPin.WhereIsTheIcon() == "Saatin yanındaki ID ikonuna sağ tıkla");
 
             // Every image and the StartupTask id in store\AppxManifest.xml must match what the code produces and uses
             string manifest = File.ReadAllText(Path.Combine(root, @"store\AppxManifest.xml"));
